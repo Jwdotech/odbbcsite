@@ -264,6 +264,15 @@ ${
     }
   }
 
+  function getExportFileName() {
+    const now = new Date();
+    const dateString = now
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, "");
+    return `Prayer Request (${dateString}).docx`;
+  }
+
   async function goDocx() {
     if (staged.length === 0) return;
 
@@ -283,7 +292,7 @@ ${
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "prayer-request.docx";
+      link.download = getExportFileName();
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       document.body.appendChild(link);
@@ -525,20 +534,13 @@ Example:
 
           <div className="mt-8 flex gap-4">
             <button
-              onClick={goPray}
-              disabled={staged.length === 0 || pdfLoading}
-              className="flex-1 bg-green-600 text-white p-5 rounded-xl text-lg font-bold disabled:opacity-50 hover:bg-green-700 transition"
-            >
-              {pdfLoading ? "Generating PDF..." : "📄 PDF"}
-            </button>
-            <button
-              onClick={goDocx}
-              disabled={staged.length === 0 || docxLoading}
-              className="flex-1 bg-blue-600 text-white p-5 rounded-xl text-lg font-bold disabled:opacity-50 hover:bg-blue-700 transition"
-            >
-              {docxLoading ? "Generating DOCX..." : "📝 DOCX"}
-            </button>
-          </div>
+            onClick={goDocx}
+            disabled={staged.length === 0 || docxLoading}
+            className="flex-1 bg-blue-600 text-white p-5 rounded-xl text-lg font-bold disabled:opacity-50 hover:bg-blue-700 transition"
+          >
+            {docxLoading ? "Generating DOCX..." : "EXPORT"}
+          </button>
+        </div>
 
         </div>
 
