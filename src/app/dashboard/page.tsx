@@ -192,7 +192,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="grid grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {cards.map((card) => (
           <Link
             key={card.title}
@@ -208,7 +208,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Real-time Data Sections */}
-      <div className="grid grid-cols-4 gap-6 mt-8">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mt-8">
         {/* Members Section */}
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="text-lg font-bold mb-4">👥 Members</h2>

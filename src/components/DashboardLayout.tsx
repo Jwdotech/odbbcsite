@@ -10,7 +10,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-slate-100">
       <Header />
-      <main className="p-8">{children}</main>
+      <main className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">{children}</main>
     </div>
   );
 }

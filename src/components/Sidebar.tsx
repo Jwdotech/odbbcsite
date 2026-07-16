@@ -14,7 +14,7 @@ const menu = [
 
 export default function Sidebar() {
   return (
-    <aside className="w-64 min-h-screen bg-blue-700 text-white flex flex-col">
+    <aside className="w-full md:w-64 min-h-screen bg-blue-700 text-white flex flex-col">
       <div className="p-6 border-b border-blue-600">
         <h1 className="text-2xl font-bold">🙏 Prayer Request Manager</h1>
       </div>
