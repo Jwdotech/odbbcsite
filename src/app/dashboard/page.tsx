@@ -163,50 +163,8 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const cards = [
-    {
-      title: "Members",
-      value: loading ? "..." : memberCount ?? 0,
-      href: "/members",
-      icon: "👥",
-    },
-    {
-      title: "Prayer Requests",
-      value: loading ? "..." : prayerCount,
-      href: "/prayer-requests",
-      icon: "🙏",
-    },
-    {
-      title: "Missionaries",
-      value: loading ? "..." : missionaryCount,
-      href: "/missionaries",
-      icon: "🌍",
-    },
-    {
-      title: "Activities",
-      value: currentMonthEvents.length,
-      href: "/activities",
-      icon: "📅",
-    },
-  ];
-
   return (
     <DashboardLayout>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        {cards.map((card) => (
-          <Link
-            key={card.title}
-            href={card.href}
-            className="block bg-white rounded-xl shadow p-6 hover:shadow-md hover:-translate-y-0.5 transition"
-          >
-            <h2 className="font-semibold">
-              {card.icon} {card.title}
-            </h2>
-            <p className="text-4xl mt-3 font-bold">{card.value}</p>
-          </Link>
-        ))}
-      </div>
-
       {/* Real-time Data Sections */}
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mt-8">
         {/* Members Section */}
@@ -305,34 +263,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="mt-8 bg-white rounded-xl shadow p-6">
-        <h2 className="text-xl font-bold mb-4">🤖 AI Assistant</h2>
-
-        <ul className="space-y-2">
-          <li>
-            ✅{" "}
-            {loading
-              ? "Loading members..."
-              : `${memberCount ?? 0} members on file (${activeCount ?? 0} active)`}
-          </li>
-          <li>
-            🌍{" "}
-            {loading
-              ? "Loading missionaries..."
-              : `${missionaryCount} missionaries serving`}
-          </li>
-          <li>🙏 {prayerCount} prayer requests logged this session</li>
-          <li>
-            📅 {currentMonthEvents.length} events happening in {CALENDAR_DATA[new Date().getMonth()].name}
-          </li>
-          <li>
-            Ready for Prayer Workspace —{" "}
-            <Link href="/prayer-requests" className="text-blue-700 underline">
-              go to Prayer Workspace
-            </Link>
-          </li>
-        </ul>
-      </div>
     </DashboardLayout>
   );
 }
