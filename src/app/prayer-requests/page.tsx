@@ -306,28 +306,24 @@ ${
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 p-8">
+    <main className="min-h-screen bg-slate-100 px-4 pb-8 pt-4 overflow-x-hidden sm:px-6 md:px-8">
+      <div className="mx-auto w-full max-w-screen-md">
+        <h1 className="text-3xl font-bold">Prayer Request Workspace</h1>
 
-      <h1 className="text-3xl font-bold">
-        Prayer Request Workspace
-      </h1>
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 sm:p-5 rounded mb-6 break-words">
+          <p className="text-sm text-blue-900">
+            <strong>💡 Tip:</strong> Use <code className="bg-blue-100 px-2 py-1 rounded">@ Member Name</code> to mark the start of a member prayer request section.
+            Example: <code className="bg-blue-100 px-2 py-1 rounded">@ John Smith</code> → their prayer requests follow on next lines.
+          </p>
+        </div>
 
-      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-6">
-        <p className="text-sm text-blue-900">
-          <strong>💡 Tip:</strong> Use <code className="bg-blue-100 px-2 py-1 rounded">@ Member Name</code> to mark the start of a member prayer request section.
-          Example: <code className="bg-blue-100 px-2 py-1 rounded">@ John Smith</code> → their prayer requests follow on next lines.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-8 mt-8">
-
-        <div>
-
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="w-full h-96 rounded-lg border p-4"
-            placeholder={`Paste Messenger conversation here...
+        <div className="grid grid-cols-1 gap-6 mt-8 lg:grid-cols-2">
+          <section className="space-y-4">
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="w-full min-h-[260px] rounded-lg border p-4 text-sm sm:text-base break-words"
+              placeholder={`Paste Messenger conversation here...
 
 Example:
 @ John Smith
@@ -337,49 +333,46 @@ Example:
 @ Mary Jane
 - Protection for family
 - Good health`}
-          />
+            />
 
-          <button
-            onClick={analyze}
-            className="mt-5 w-full bg-blue-700 text-white p-4 rounded-lg"
-          >
-            Submit
-          </button>
-
-          {preview.some((p) => p.isUnknown) && (
             <button
-              onClick={autoAddUnknownMembers}
-              disabled={addingMembers}
-              className="mt-3 w-full bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 disabled:opacity-50 transition"
+              onClick={analyze}
+              className="w-full bg-blue-700 text-white px-5 py-4 rounded-lg text-sm font-medium sm:text-base"
             >
-              {addingMembers ? "Adding members..." : "➕ Auto-Add Unknown Members"}
+              Submit
             </button>
-          )}
 
-          <button
-            onClick={stagePreview}
-            disabled={preview.length === 0 || staging}
-            className="mt-3 w-full bg-slate-800 text-white p-4 rounded-lg disabled:opacity-50"
-          >
-            {staging ? "Staging..." : "Add to Compilation"}
-          </button>
+            {preview.some((p) => p.isUnknown) && (
+              <button
+                onClick={autoAddUnknownMembers}
+                disabled={addingMembers}
+                className="w-full bg-green-600 text-white px-5 py-4 rounded-lg hover:bg-green-700 disabled:opacity-50 transition text-sm font-medium sm:text-base"
+              >
+                {addingMembers ? "Adding members..." : "➕ Auto-Add Unknown Members"}
+              </button>
+            )}
 
-        </div>
+            <button
+              onClick={stagePreview}
+              disabled={preview.length === 0 || staging}
+              className="w-full bg-slate-800 text-white px-5 py-4 rounded-lg disabled:opacity-50 text-sm font-medium sm:text-base"
+            >
+              {staging ? "Staging..." : "Add to Compilation"}
+            </button>
+          </section>
 
-        <div>
+          <section className="space-y-6">
+            {error && (
+              <div className="rounded-lg bg-red-50 text-red-700 p-3 break-words">
+                {error}
+              </div>
+            )}
 
-          {error && (
-            <div className="mb-4 rounded-lg bg-red-50 text-red-700 p-3">
-              {error}
+            <div className="bg-white rounded-xl shadow p-5 sm:p-6 whitespace-pre-line break-words">
+              {result || "Waiting for AI..."}
             </div>
-          )}
 
-          <div className="bg-white rounded-xl shadow p-6 whitespace-pre-line">
-            {result || "Waiting for AI..."}
-          </div>
-
-          <div className="space-y-6 mt-5">
-            <div className="bg-white rounded-xl shadow p-6">
+            <div className="bg-white rounded-xl shadow p-5 sm:p-6 break-words">
               <h2 className="text-xl font-semibold mb-4">AI Preview</h2>
               {preview.length === 0 ? (
                 <p className="text-gray-500">AI preview of the current submission will appear here.</p>
@@ -387,9 +380,7 @@ Example:
                 preview.map((member) => (
                   <div key={member.name} className="mb-5 last:mb-0">
                     <h3
-                      className={`font-bold text-lg ${
-                        member.isUnknown ? "text-red-600" : ""
-                      }`}
+                      className={`font-bold text-lg ${member.isUnknown ? "text-red-600" : ""} break-words`}
                     >
                       {member.name}
                       {member.isUnknown && (
@@ -398,9 +389,9 @@ Example:
                         </span>
                       )}
                     </h3>
-                    <ul className="list-disc ml-6 mt-2">
+                    <ul className="list-disc ml-6 mt-2 space-y-2 break-words">
                       {member.requests.map((request, index) => (
-                        <li key={index}>{request}</li>
+                        <li key={index} className="break-words">{request}</li>
                       ))}
                     </ul>
                   </div>
@@ -408,8 +399,8 @@ Example:
               )}
             </div>
 
-            <div className="bg-white rounded-xl shadow p-6">
-              <div className="flex items-start justify-between gap-4">
+            <div className="bg-white rounded-xl shadow p-5 sm:p-6 break-words">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <h2 className="text-xl font-semibold">Staged Compilation</h2>
                   <p className="text-sm text-slate-500 mt-1">
@@ -431,28 +422,25 @@ Example:
                 </p>
               ) : (
                 <div className="mt-4 space-y-5">
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-slate-600 break-words">
                     {staged.length} people staged, {staged.reduce(
                       (count, item) => count + item.requests.length,
                       0
                     )} prayer requests total.
                   </p>
                   {staged.map((member) => (
-                    <div
-                      key={member.name}
-                      className="border rounded-lg p-4 bg-slate-50"
-                    >
+                    <div key={member.name} className="border rounded-lg p-4 bg-slate-50 break-words">
                       {editingMember === member.name ? (
                         <div>
-                          <h3 className="font-semibold mb-3">{member.name}</h3>
+                          <h3 className="font-semibold mb-3 break-words">{member.name}</h3>
                           <textarea
                             value={editRequests}
                             onChange={(e) => setEditRequests(e.target.value)}
-                            className="w-full border rounded-lg p-3 mb-3 font-mono text-sm"
+                            className="w-full border rounded-lg p-3 mb-3 font-mono text-sm break-words"
                             rows={6}
                             placeholder="One prayer request per line..."
                           />
-                          <div className="flex gap-2">
+                          <div className="flex flex-col gap-2 sm:flex-row">
                             <button
                               onClick={saveEdit}
                               className="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition"
@@ -469,9 +457,9 @@ Example:
                         </div>
                       ) : (
                         <div>
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-semibold">{member.name}</h3>
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 break-words">
+                              <h3 className="font-semibold break-words">{member.name}</h3>
                               {member.isUnknown && (
                                 <span className="text-xs font-semibold bg-red-100 text-red-700 px-2 py-1 rounded-full">
                                   ⚠ Unknown
@@ -479,17 +467,15 @@ Example:
                               )}
                             </div>
                             <button
-                              onClick={() =>
-                                startEdit(member.name, member.requests)
-                              }
+                              onClick={() => startEdit(member.name, member.requests)}
                               className="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
                             >
                               ✏ Edit
                             </button>
                           </div>
-                          <ul className="list-disc ml-6 text-sm text-slate-700 space-y-1">
+                          <ul className="list-disc ml-6 text-sm text-slate-700 space-y-1 break-words">
                             {member.requests.map((request, index) => (
-                              <li key={index}>{request}</li>
+                              <li key={index} className="break-words">{request}</li>
                             ))}
                           </ul>
                         </div>
@@ -499,22 +485,19 @@ Example:
                 </div>
               )}
             </div>
-          </div>
 
-          <div className="mt-8 flex gap-4">
-            <button
-            onClick={goDocx}
-            disabled={staged.length === 0 || docxLoading}
-            className="flex-1 bg-blue-600 text-white p-5 rounded-xl text-lg font-bold disabled:opacity-50 hover:bg-blue-700 transition"
-          >
-            {docxLoading ? "Generating DOCX..." : "EXPORT"}
-          </button>
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+              <button
+                onClick={goDocx}
+                disabled={staged.length === 0 || docxLoading}
+                className="flex-1 bg-blue-600 text-white px-5 py-4 rounded-xl text-lg font-bold disabled:opacity-50 hover:bg-blue-700 transition"
+              >
+                {docxLoading ? "Generating DOCX..." : "EXPORT"}
+              </button>
+            </div>
+          </section>
         </div>
-
-        </div>
-
       </div>
-
     </main>
   );
 }
