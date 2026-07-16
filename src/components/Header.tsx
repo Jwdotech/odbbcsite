@@ -6,7 +6,7 @@ export default function Header() {
       <div>
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <p className="text-gray-500 text-sm">
-          Welcome to Prayer Request Manager
+          Welcome to ODBBC
         </p>
       </div>
 

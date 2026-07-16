@@ -16,7 +16,7 @@ export default function Sidebar() {
   return (
     <aside className="w-full md:w-64 min-h-screen bg-blue-700 text-white flex flex-col">
       <div className="p-6 border-b border-blue-600">
-        <h1 className="text-2xl font-bold">🙏 Prayer Request Manager</h1>
+        <h1 className="text-2xl font-bold">ODBBC</h1>
       </div>
 
       <nav className="flex-1 p-4 space-y-2">
@@ -31,11 +31,6 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-4">
-        <button className="w-full rounded-lg bg-green-600 py-3 font-bold hover:bg-green-700">
-          🚀 GO PRAY
-        </button>
-      </div>
     </aside>
   );
 }

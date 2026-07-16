@@ -326,7 +326,7 @@ export default function DashboardPage() {
             📅 {currentMonthEvents.length} events happening in {CALENDAR_DATA[new Date().getMonth()].name}
           </li>
           <li>
-            🚀 Ready for GO PRAY —{" "}
+            Ready for Prayer Workspace —{" "}
             <Link href="/prayer-requests" className="text-blue-700 underline">
               go to Prayer Workspace
             </Link>

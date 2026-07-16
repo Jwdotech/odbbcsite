@@ -4,7 +4,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8">
 
         <h1 className="text-3xl font-bold text-center text-blue-700">
-          🙏 Prayer Request Manager
+          ODBBC
         </h1>
 
         <p className="text-center text-gray-500 mt-2">

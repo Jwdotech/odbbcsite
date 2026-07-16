@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
-  title: "Prayer Request Manager",
+  title: "ODBBC",
   description: "AI Powered Church Prayer Manager",
 };
 

@@ -26,7 +26,6 @@ export default function PrayerRequestsPage() {
   const [staged, setStaged] = useState<ParsedPrayer[]>([]);
   const [result, setResult] = useState("");
   const [knownNames, setKnownNames] = useState<string[]>([]);
-  const [grammarLoading, setGrammarLoading] = useState(false);
   const [staging, setStaging] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [docxLoading, setDocxLoading] = useState(false);
@@ -34,7 +33,6 @@ export default function PrayerRequestsPage() {
   const [addingMembers, setAddingMembers] = useState(false);
   const [editingMember, setEditingMember] = useState<string | null>(null);
   const [editRequests, setEditRequests] = useState<string>("");
-  const [pasteInput, setPasteInput] = useState("");
 
   const loadMembers = async () => {
     try {
@@ -232,47 +230,6 @@ ${
     }
   }
 
-  async function fixGrammar() {
-    if (preview.length === 0) return;
-
-    setGrammarLoading(true);
-    setError("");
-
-    try {
-      const flatRequests = preview.flatMap((member) => member.requests);
-
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requests: flatRequests }),
-      });
-
-      if (!res.ok) throw new Error("Request failed");
-
-      const data = await res.json();
-      const cleaned: string[] = Array.isArray(data.cleaned)
-        ? data.cleaned
-        : flatRequests;
-
-      let cursor = 0;
-      const updated = preview.map((member) => {
-        const count = member.requests.length;
-        const newRequests = cleaned.slice(cursor, cursor + count);
-        cursor += count;
-        return { ...member, requests: newRequests };
-      });
-
-      setPreview(updated);
-    } catch (err) {
-      setError(
-        "⚠ Failed to fix grammar. Check your OpenAI API key and connection."
-      );
-      console.error(err);
-    } finally {
-      setGrammarLoading(false);
-    }
-  }
-
   async function goPray() {
     if (staged.length === 0) return;
 
@@ -370,51 +327,6 @@ ${
     setEditRequests("");
   }
 
-  function buildStagedText() {
-    return staged
-      .map(
-        (member) =>
-          `@ ${member.name}\n${member.requests.map((request) => `- ${request}`).join("\n")}`
-      )
-      .join("\n\n");
-  }
-
-  async function copyStagedText() {
-    try {
-      await navigator.clipboard.writeText(buildStagedText());
-      setResult("Copied staged prayer list to clipboard.");
-    } catch (err) {
-      setError("⚠ Failed to copy staged prayer list.");
-      console.error(err);
-    }
-  }
-
-  function applyPasteUpdate() {
-    if (!pasteInput.trim()) {
-      setError("Paste prayer list text before updating.");
-      return;
-    }
-
-    try {
-      const parsed = parsePrayer(pasteInput, knownNames);
-      if (parsed.length === 0) {
-        setError("No valid prayer requests were found in pasted text.");
-        return;
-      }
-
-      setStaged(parsed);
-      setPasteInput("");
-      setResult("Updated staged prayer list from pasted text.");
-    } catch (err) {
-      setError("⚠ Failed to parse pasted prayer list.");
-      console.error(err);
-    }
-  }
-
-  function loadStagedIntoPaste() {
-    setPasteInput(buildStagedText());
-  }
-
   return (
     <main className="min-h-screen bg-slate-100 p-8">
 
@@ -453,15 +365,7 @@ Example:
             onClick={analyze}
             className="mt-5 w-full bg-blue-700 text-white p-4 rounded-lg"
           >
-            🤖 AI ANALYZE
-          </button>
-
-          <button
-            onClick={fixGrammar}
-            disabled={preview.length === 0 || grammarLoading}
-            className="mt-3 w-full bg-purple-700 text-white p-4 rounded-lg disabled:opacity-50"
-          >
-            {grammarLoading ? "Fixing grammar..." : "✨ Fix Grammar"}
+            Submit
           </button>
 
           {preview.some((p) => p.isUnknown) && (
@@ -482,34 +386,6 @@ Example:
             {staging ? "Staging..." : "Add to Compilation"}
           </button>
 
-          <div className="mt-6 rounded-xl border border-slate-300 bg-white p-4">
-            <h2 className="text-lg font-semibold mb-3">Bulk Update / Paste</h2>
-            <p className="text-sm text-slate-500 mb-3">
-              Paste an existing prayer list to overwrite the current staged compilation.
-            </p>
-            <textarea
-              value={pasteInput}
-              onChange={(e) => setPasteInput(e.target.value)}
-              className="w-full h-48 rounded-lg border p-3 mb-3 font-mono text-sm"
-              placeholder={`@ John Smith\n- Healing prayer\n- Safe travels\n\n@ Mary Jane\n- Protection for family`}
-            />
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <button
-                onClick={applyPasteUpdate}
-                className="flex-1 bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition"
-              >
-                Apply Pasted Update
-              </button>
-              <button
-                onClick={loadStagedIntoPaste}
-                disabled={staged.length === 0}
-                className="flex-1 bg-slate-200 text-slate-800 px-4 py-3 rounded-lg hover:bg-slate-300 transition disabled:opacity-50"
-              >
-                Load Staged Into Paste
-              </button>
-            </div>
-          </div>
-
         </div>
 
         <div>
@@ -528,7 +404,7 @@ Example:
             <div className="bg-white rounded-xl shadow p-6">
               <h2 className="text-xl font-semibold mb-4">AI Preview</h2>
               {preview.length === 0 ? (
-                <p className="text-gray-500">AI preview of the current pasted batch will appear here.</p>
+                <p className="text-gray-500">AI preview of the current submission will appear here.</p>
               ) : (
                 preview.map((member) => (
                   <div key={member.name} className="mb-5 last:mb-0">
