@@ -117,6 +117,7 @@ const CALENDAR_DATA: Record<number, { name: string; events: string[] }> = {
 export default function DashboardPage() {
   const [memberCount, setMemberCount] = useState<number | null>(null);
   const [activeCount, setActiveCount] = useState<number | null>(null);
+  const [stagedCount, setStagedCount] = useState<number>(0);
   const [prayerCount, setPrayerCount] = useState<number>(0);
   const [missionaryCount, setMissionaryCount] = useState<number>(0);
   const [currentMonthEvents, setCurrentMonthEvents] = useState<string[]>([]);
@@ -139,14 +140,33 @@ export default function DashboardPage() {
         const monthData = CALENDAR_DATA[currentMonth];
         setCurrentMonthEvents(monthData?.events || []);
 
-        // Load prayer requests count from localStorage or set to 0
-        const savedPrayers = localStorage.getItem("prayerRequests");
-        if (savedPrayers) {
+        // Load prayer requests count from staged localStorage or fallback to legacy key
+        const savedStaged = localStorage.getItem("prayerRequestsStaged");
+        if (savedStaged) {
           try {
-            const prayers = JSON.parse(savedPrayers);
-            setPrayerCount(Array.isArray(prayers) ? prayers.length : 0);
+            const stagedPrayers = JSON.parse(savedStaged) as Array<{ requests: string[] }>;
+            if (Array.isArray(stagedPrayers)) {
+              setStagedCount(stagedPrayers.length);
+              setPrayerCount(
+                stagedPrayers.reduce((count, item) => count + (Array.isArray(item.requests) ? item.requests.length : 0), 0)
+              );
+            } else {
+              setStagedCount(0);
+              setPrayerCount(0);
+            }
           } catch {
+            setStagedCount(0);
             setPrayerCount(0);
+          }
+        } else {
+          const savedPrayers = localStorage.getItem("prayerRequests");
+          if (savedPrayers) {
+            try {
+              const prayers = JSON.parse(savedPrayers);
+              setPrayerCount(Array.isArray(prayers) ? prayers.length : 0);
+            } catch {
+              setPrayerCount(0);
+            }
           }
         }
       } catch (err) {
@@ -198,7 +218,10 @@ export default function DashboardPage() {
           <h2 className="text-lg font-bold mb-4">🙏 Prayer Requests</h2>
           <div className="space-y-2">
             <p className="text-sm text-slate-700">
-              <span className="font-bold text-blue-700">{prayerCount}</span> requests logged
+              <span className="font-bold text-blue-700">{stagedCount}</span> members staged
+            </p>
+            <p className="text-sm text-slate-700">
+              <span className="font-bold text-blue-700">{prayerCount}</span> prayer requests total
             </p>
             <p className="text-xs text-slate-500">
               Latest session activities tracked

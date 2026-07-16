@@ -423,7 +423,7 @@ Example:
               ) : (
                 <div className="mt-4 space-y-5">
                   <p className="text-sm text-slate-600 break-words">
-                    {staged.length} people staged, {staged.reduce(
+                    {staged.length} members staged, {staged.reduce(
                       (count, item) => count + item.requests.length,
                       0
                     )} prayer requests total.
