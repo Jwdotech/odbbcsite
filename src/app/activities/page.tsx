@@ -118,13 +118,7 @@ const CALENDAR_DATA: Record<number, MonthData> = {
 
 export default function ActivitiesPage() {
   const [backdropUrl, setBackdropUrl] = useState<string>("");
-  const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Load backdrop image
-    loadBackdrop();
-  }, []);
 
   async function loadBackdrop() {
     try {
@@ -134,10 +128,13 @@ export default function ActivitiesPage() {
       }
     } catch (err) {
       console.error("Error loading backdrop:", err);
-    } finally {
-      setLoading(false);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadBackdrop();
+  }, []);
 
   return (
     <DashboardLayout>

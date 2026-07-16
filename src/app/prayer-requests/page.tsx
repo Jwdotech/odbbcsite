@@ -21,28 +21,6 @@ const DEFAULT_PRAYER_ENTRY: ParsedPrayer = {
 };
 
 export default function PrayerRequestsPage() {
-  const [input, setInput] = useState("");
-  const [preview, setPreview] = useState<ParsedPrayer[]>([]);
-  const [staged, setStaged] = useState<ParsedPrayer[]>([]);
-  const [result, setResult] = useState("");
-  const [knownNames, setKnownNames] = useState<string[]>([]);
-  const [staging, setStaging] = useState(false);
-  const [pdfLoading, setPdfLoading] = useState(false);
-  const [docxLoading, setDocxLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [addingMembers, setAddingMembers] = useState(false);
-  const [editingMember, setEditingMember] = useState<string | null>(null);
-  const [editRequests, setEditRequests] = useState<string>("");
-
-  const loadMembers = async () => {
-    try {
-      const members = await getMembers();
-      setKnownNames(members.map((m) => m.full_name));
-    } catch (err) {
-      console.error("Failed to load members:", err);
-    }
-  };
-
   function ensureDefaultPrayerEntry(entries: ParsedPrayer[]): ParsedPrayer[] {
     const hasDefault = entries.some(
       (entry) => entry.name.toLowerCase() === DEFAULT_PRAYER_ENTRY.name.toLowerCase()
@@ -50,23 +28,48 @@ export default function PrayerRequestsPage() {
     return hasDefault ? entries : [DEFAULT_PRAYER_ENTRY, ...entries];
   }
 
-  useEffect(() => {
-    loadMembers();
-
-    const saved = localStorage.getItem("prayerRequestsStaged");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as ParsedPrayer[];
-        if (Array.isArray(parsed)) {
-          setStaged(ensureDefaultPrayerEntry(parsed));
-          return;
-        }
-      } catch (err) {
-        console.error("Failed to load staged prayer requests:", err);
-      }
+  const [input, setInput] = useState("");
+  const [preview, setPreview] = useState<ParsedPrayer[]>([]);
+  const [staged, setStaged] = useState<ParsedPrayer[]>(() => {
+    if (typeof window === "undefined") {
+      return [DEFAULT_PRAYER_ENTRY];
     }
 
-    setStaged([DEFAULT_PRAYER_ENTRY]);
+    try {
+      const saved = localStorage.getItem("prayerRequestsStaged");
+      if (saved) {
+        const parsed = JSON.parse(saved) as ParsedPrayer[];
+        if (Array.isArray(parsed)) {
+          return ensureDefaultPrayerEntry(parsed);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load staged prayer requests:", err);
+    }
+
+    return [DEFAULT_PRAYER_ENTRY];
+  });
+  const [result, setResult] = useState("");
+  const [knownNames, setKnownNames] = useState<string[]>([]);
+  const [staging, setStaging] = useState(false);
+  const [docxLoading, setDocxLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [addingMembers, setAddingMembers] = useState(false);
+  const [editingMember, setEditingMember] = useState<string | null>(null);
+  const [editRequests, setEditRequests] = useState<string>("");
+
+  async function loadMembers() {
+    try {
+      const members = await getMembers();
+      setKnownNames(members.map((m) => m.full_name));
+    } catch (err) {
+      console.error("Failed to load members:", err);
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadMembers();
   }, []);
 
   useEffect(() => {
@@ -230,40 +233,6 @@ ${
     }
   }
 
-  async function goPray() {
-    if (staged.length === 0) return;
-
-    setPdfLoading(true);
-    setError("");
-
-    try {
-      const res = await fetch("/api/generate-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ preview: staged }),
-      });
-
-      if (!res.ok) throw new Error("Request failed");
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "prayer-booklet.pdf";
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      setError("⚠ Failed to generate PDF.");
-      console.error(err);
-    } finally {
-      setPdfLoading(false);
-    }
-  }
-
   function getExportFileName() {
     const now = new Date();
     const dateString = now
@@ -345,7 +314,7 @@ ${
 
       <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-6">
         <p className="text-sm text-blue-900">
-          <strong>💡 Tip:</strong> Use <code className="bg-blue-100 px-2 py-1 rounded">@ Member Name</code> to mark the start of a member's prayer requests. 
+          <strong>💡 Tip:</strong> Use <code className="bg-blue-100 px-2 py-1 rounded">@ Member Name</code> to mark the start of a member prayer request section.
           Example: <code className="bg-blue-100 px-2 py-1 rounded">@ John Smith</code> → their prayer requests follow on next lines.
         </p>
       </div>

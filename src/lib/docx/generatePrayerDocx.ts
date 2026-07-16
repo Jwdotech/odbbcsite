@@ -40,17 +40,30 @@ export async function generatePrayerDocx(
     (entry) => entry.name.trim().toLowerCase() !== "sis. bel"
   );
 
-  const missionariesPerPage = 5;
   const prayerEntriesPerPage = 4;
-  const missionaryChunks: string[][] = [];
-  for (let i = 0; i < MISSIONARIES.length; i += missionariesPerPage) {
-    missionaryChunks.push(MISSIONARIES.slice(i, i + missionariesPerPage));
-  }
-
   const prayerPageCount = bodyPrayerEntries.length
     ? Math.ceil(bodyPrayerEntries.length / prayerEntriesPerPage)
     : 0;
-  const bodyPageCount = prayerPageCount;
+  const bodyPageCount = Math.max(prayerPageCount, 1);
+
+  const splitIntoGroups = <T,>(items: T[], pageCount: number): T[][] => {
+    const total = items.length;
+    const baseSize = Math.floor(total / pageCount);
+    let remainder = total % pageCount;
+    const pages: T[][] = [];
+    let startIndex = 0;
+
+    for (let i = 0; i < pageCount; i += 1) {
+      const size = baseSize + (remainder > 0 ? 1 : 0);
+      remainder -= 1;
+      pages.push(items.slice(startIndex, startIndex + size));
+      startIndex += size;
+    }
+
+    return pages;
+  };
+
+  const missionaryGroups = splitIntoGroups(MISSIONARIES, bodyPageCount);
 
   const createBulletParagraph = (text: string) =>
     new Paragraph({
@@ -58,6 +71,7 @@ export async function generatePrayerDocx(
       bullet: { level: 0 },
       spacing: { after: 30 },
       indent: { left: 360 },
+      keepLines: true,
     });
 
   const createHeaderParagraph = () =>
@@ -206,7 +220,6 @@ export async function generatePrayerDocx(
 
     const startIdx = pageIndex * prayerEntriesPerPage;
     const pageEntries = prayerEntries.slice(startIdx, startIdx + prayerEntriesPerPage);
-    const missionaryChunk = missionaryChunks[pageIndex] ?? missionaryChunks[0] ?? [];
 
     pageEntries.forEach((entry) => {
       sections.push(
@@ -227,6 +240,11 @@ export async function generatePrayerDocx(
       });
     });
 
+    const missionaryGroup = missionaryGroups[pageIndex] ?? [];
+    const previousCount = missionaryGroups
+      .slice(0, pageIndex)
+      .reduce((sum, prevGroup) => sum + prevGroup.length, 0);
+
     sections.push(
       new Paragraph({
         children: [
@@ -240,12 +258,27 @@ export async function generatePrayerDocx(
       })
     );
 
-    missionaryChunk.forEach((missionary, index) => {
+    sections.push(
+      new Paragraph({
+        spacing: { before: 20, after: 18 },
+        indent: { left: 360 },
+        children: [
+          new TextRun({
+            text: `Group ${pageIndex + 1}`,
+            bold: true,
+            size: 20,
+          }),
+        ],
+      })
+    );
+
+    missionaryGroup.forEach((missionary, index) => {
       sections.push(
         new Paragraph({
-          text: `${index + 1 + pageIndex * missionariesPerPage}. ${missionary}`,
+          text: `${previousCount + index + 1}. ${missionary}`,
           spacing: { after: 18 },
-          indent: { left: 360 },
+          indent: { left: 540 },
+          keepLines: true,
         })
       );
     });

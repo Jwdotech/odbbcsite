@@ -36,10 +36,6 @@ export default function MembersPage() {
   }[]>([]);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    loadMembers();
-  }, []);
-
   async function loadMembers() {
     setLoading(true);
     setError("");
@@ -53,6 +49,11 @@ export default function MembersPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadMembers();
+  }, []);
 
   async function handleAdd(fullName: string, gender: "Male" | "Female") {
     setSaving(true);

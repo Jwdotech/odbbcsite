@@ -39,15 +39,28 @@ export function generatePrayerBookletHtml(preview: ParsedPrayer[]): string {
     (entry) => entry.name.trim().toLowerCase() !== "sis. bel"
   );
 
-  const missionariesPerPage = 5;
   const prayerEntriesPerPage = 4;
-  const missionaryChunks: string[][] = [];
-  for (let i = 0; i < MISSIONARIES.length; i += missionariesPerPage) {
-    missionaryChunks.push(MISSIONARIES.slice(i, i + missionariesPerPage));
-  }
-
   const prayerPageCount = Math.ceil(otherPrayerEntries.length / prayerEntriesPerPage);
-  const bodyPageCount = prayerPageCount;
+  const bodyPageCount = Math.max(prayerPageCount, 1);
+
+  const splitIntoPages = <T,>(items: T[], pageCount: number): T[][] => {
+    const total = items.length;
+    const baseSize = Math.floor(total / pageCount);
+    let remainder = total % pageCount;
+    const pages: T[][] = [];
+    let startIndex = 0;
+
+    for (let i = 0; i < pageCount; i += 1) {
+      const size = baseSize + (remainder > 0 ? 1 : 0);
+      remainder -= 1;
+      pages.push(items.slice(startIndex, startIndex + size));
+      startIndex += size;
+    }
+
+    return pages;
+  };
+
+  const missionaryChunks = splitIntoPages(MISSIONARIES, bodyPageCount);
 
   const renderHeader = (pageNumber: number): string => `
       <div class="page-header">
@@ -112,11 +125,13 @@ export function generatePrayerBookletHtml(preview: ParsedPrayer[]): string {
     `;
   };
 
-  const renderBodyPage = (pageIndex: number): string => {
+  const renderBodyPage = (pageIndex: number, pageNumber: number): string => {
     const startIdx = pageIndex * prayerEntriesPerPage;
     const pageEntries = otherPrayerEntries.slice(startIdx, startIdx + prayerEntriesPerPage);
-    const missionaryChunk = missionaryChunks[pageIndex] ?? missionaryChunks[0] ?? [];
-    const pageNumber = pageIndex + 2;
+    const missionaryChunk = missionaryChunks[pageIndex] ?? [];
+    const priorCount = missionaryChunks
+      .slice(0, pageIndex)
+      .reduce((sum, group) => sum + group.length, 0);
 
     return `
       <div class="page">
@@ -145,7 +160,7 @@ export function generatePrayerBookletHtml(preview: ParsedPrayer[]): string {
             ${missionaryChunk
               .map(
                 (missionary, index) =>
-                  `<div class="missionary-item">${index + 1 + pageIndex * missionariesPerPage}. ${escapeHtml(missionary)}</div>`
+                  `<div class="missionary-item">${priorCount + index + 1}. ${escapeHtml(missionary)}</div>`
               )
               .join("")}
           </div>
@@ -157,7 +172,7 @@ export function generatePrayerBookletHtml(preview: ParsedPrayer[]): string {
   const pagesHtml = [renderActivityPage()];
 
   for (let pageIndex = 0; pageIndex < bodyPageCount; pageIndex += 1) {
-    pagesHtml.push(renderBodyPage(pageIndex + 2));
+    pagesHtml.push(renderBodyPage(pageIndex, pageIndex + 2));
   }
 
   pagesHtml.push(
@@ -259,6 +274,8 @@ export function generatePrayerBookletHtml(preview: ParsedPrayer[]): string {
             border-radius: 6px;
             font-size: 10pt;
             line-height: 1.3;
+            page-break-inside: avoid;
+            break-inside: avoid;
           }
           .missionary-item.empty {
             font-style: italic;
@@ -272,6 +289,8 @@ export function generatePrayerBookletHtml(preview: ParsedPrayer[]): string {
             border-radius: 12px;
             padding: 12px 14px;
             margin-bottom: 14px;
+            page-break-inside: avoid;
+            break-inside: avoid;
           }
           .abroad-card {
             page-break-inside: avoid;

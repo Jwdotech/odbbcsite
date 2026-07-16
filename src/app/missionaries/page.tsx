@@ -22,10 +22,6 @@ export default function MissionariesPage() {
   const [bulkSaving, setBulkSaving] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    loadMissionaries();
-  }, []);
-
   async function loadMissionaries() {
     setLoading(true);
     setError("");
@@ -39,6 +35,11 @@ export default function MissionariesPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadMissionaries();
+  }, []);
 
   async function handleAdd() {
     if (!fullName.trim()) return;
